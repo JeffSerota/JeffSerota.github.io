@@ -1,33 +1,58 @@
-<script>
-var end = new Date('05/30/2019 10:00 PM');
+<!DOCTYPE html>
+<html lang="en">
 
-    var _second = 1000;
-    var _minute = _second * 60;
-    var _hour = _minute * 60;
-    var _day = _hour * 24;
-    var timer;
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>GWP - Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/contentful@latest/dist/contentful.browser.min.js"></script>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script type="text/javascript">
+        (function (window, document, undefined) {
 
-    function showRemaining() {
-        var now = new Date();
-        var distance = end - now;
-        if (distance < 0) {
+            window.onload = init;
 
-            clearInterval(timer);
-            document.getElementById('countdown').innerHTML = 'EXPIRED!';
+            var client = contentful.createClient({
+                accessToken: "eac40ca0b951cff5c097f96a36804ceb1dfebf80dfd1fb7dcf4b75c63fe91880",
+                space: "2yd1b0rk61ek"
+            });
 
-            return;
-        }
-        var days = Math.floor(distance / _day);
-        var hours = Math.floor((distance % _day) / _hour);
-        var minutes = Math.floor((distance % _hour) / _minute);
-        var seconds = Math.floor((distance % _minute) / _second);
+            function init() {
+                const container = document.getElementById('content');
 
-        document.getElementById('countdown').innerHTML = days + ' days ';
-        document.getElementById('countdown').innerHTML += hours + ' hrs ';
-        document.getElementById('countdown').innerHTML += minutes + ' mins ';
-        document.getElementById('countdown').innerHTML += seconds + ' secs';
-    }
+                client.getEntries({
+                    content_type: 'coupon'
+                })
+                    .then(function (entries) {
+                        container.innerHTML = renderCoupons(entries.items)
+                    })
 
-    timer = setInterval(showRemaining, 1000);
-</script>
-<div id="countdown" style="font-size:32px;text-align:center;padding:15px"></div>
+                function renderCoupons(coupons) {
+                    return '<h1>Coupons</h1>' +
+                        '<div class="row my-4">' +
+                        coupons.map(renderSingleCoupon).join('\n') +
+                        '</div>'
+                }
+
+                function renderSingleCoupon(coupon) {
+                    var fields = coupon.fields
+                    console.log(fields);
+                    return '<div class="col-4 mb-5">' +
+                        '<h3>' + fields.title + '</h3>' +
+                        '<p><b>' + fields.subTitle + '</b></p>' +
+                        '<p>Code: ' + fields.couponCode + '</p>' +
+                        '</div>'
+                }
+            }
+
+        })(window, document, undefined);
+    </script>
+</head>
+
+<body>
+    <div id="content" class="container my-5">
+    </div>
+</body>
+
+</html>
